@@ -1,0 +1,56 @@
+* My rust utils
+** data structure
++ [stack, queue, deque] just use `Vec`, `VecDeque` with `match`, `if let`, `while let` to ensure not null.
++ [heap] another implement (std::collections::BinaryHeap)
++ [linkedlist] another implement (std::collections::LinkedList)
++ [avl tree]
++ [trie] TODO: hashmap version?
+
+** macros, structs for debug
+*** dbgt!(&anything)
+print debug:
++ file
++ line
++ stringify
++ type
++ value
+
+NOTE: use dbg! if your do not need to know the type!
+
+*** timeit!
+#+BEGIN_SRC rust
+timeit!(100, (0..1000).into_iter().sum::<i32>());
+timeit!(10, {
+    let mut _sum = 0;
+    for i in 0..1000 {
+        _sum += i;
+    }
+});
+timeit!(dbg!("hello world!"));
+#+END_SRC
+
+*** timer
+#+BEGIN_SRC rust
+let timer = Timer::new()
+timer.stop() // print time elapsed from new() to now
+timer.diff() // print time elapsed from last stop()/diff() to now
+#+END_SRC
+
+
+* Usage (local dependency)
+** Add dependency in Cargo.toml
+#+BEGIN_SRC conf
+[dependencies]
+utils = { path = "utils", version = "0.1.0"}
+#+END_SRC
+
+** Link or move directory
+Recommend link if you only want to keep one copy of the codes
+#+BEGIN_SRC sh
+ln -s <real folder> <link folder>
+#+END_SRC
+
+** Use in your source code
+#+BEGIN_SRC rust
+use utils;
+#+END_SRC
