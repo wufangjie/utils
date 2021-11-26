@@ -1,7 +1,7 @@
 //! A AVL tree is a self-balancing binary search tree.
 //!
 //! version 0.1.2
-//! https://github.com/wufangjie/learn/blob/main/src/utils/avl.rs
+//! https://github.com/wufangjie/utils/blob/main/src/avl.rs
 //!
 //! This tree node use diff(balance factor) instead of regular height,
 //! because, in most case, we do not interest in the height of a AVL tree,

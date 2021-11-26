@@ -1,7 +1,7 @@
 //! A marco to do simple time profile.
 //!
 //! version 0.1.0
-//! https://github.com/wufangjie/learn/blob/main/src/timeit.rs
+//! https://github.com/wufangjie/utils/blob/main/src/timeit.rs
 //!
 //! use case 1: timeit!(n, code);
 //! use case 2: timeit!(code); (=== timeit!(1, code))

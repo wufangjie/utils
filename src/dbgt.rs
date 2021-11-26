@@ -1,7 +1,7 @@
 //! A macro to debug a variable with its type.
 //!
 //! version 0.1.0
-//! https://github.com/wufangjie/learn/blob/main/src/dbgt.rs
+//! https://github.com/wufangjie/utils/blob/main/src/dbgt.rs
 //!
 //! usage: dbgt!(&anything);
 
