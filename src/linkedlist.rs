@@ -1,7 +1,7 @@
 //! A Doubly Linked List implementation.
 //!
 //! version 0.1.0
-//! https://github.com/wufangjie/learn/blob/main/src/utils/linkedlist.rs
+//! https://github.com/wufangjie/utils/blob/main/src/linkedlist.rs
 //!
 //! Forward list share the ownership, backward list is just raw pointer
 //! Only used two `unsafe` to save loop time
