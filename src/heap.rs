@@ -1,4 +1,5 @@
-// TODO: compare with std::collections::BinaryHeap
+// NOTE: std::collections::BinaryHeap is a max heap,
+// as fast as this min heap implemention.
 
 #[derive(Debug)]
 pub struct Heap<T: PartialOrd> {
