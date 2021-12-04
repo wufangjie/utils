@@ -36,6 +36,25 @@ timer.stop() // print time elapsed from new() to now
 timer.diff() // print time elapsed from last stop()/diff() to now
 #+END_SRC
 
+** progress bar
+*** ProgressBar
+#+BEGIN_SRC rust
+let iter = (0..101).into_iter();
+let n = iter.len();
+let mut bar = ProgressBar::new(n);
+for i in iter {
+    bar.goto(i);
+    thread::sleep(Duration::from_millis(50));
+}
+bar.quit();
+#+END_SRC
+
+*** IterPro
+#+BEGIN_SRC rust
+for _ in IterPro::new((0..101).into_iter()) {
+    thread::sleep(Duration::from_millis(50));
+}
+#+END_SRC
 
 * Usage (local dependency)
 ** Add dependency in Cargo.toml

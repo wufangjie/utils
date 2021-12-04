@@ -14,3 +14,6 @@ pub use avl::{AVLNode, AVL};
 
 pub mod timer;
 pub use timer::Timer;
+
+pub mod progressbar;
+pub use progressbar::{ProgressBar, IterPro};
