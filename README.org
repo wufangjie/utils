@@ -31,7 +31,7 @@ timeit!(dbg!("hello world!"));
 
 *** timer
 #+BEGIN_SRC rust
-let timer = Timer::new()
+let mut timer = Timer::new()
 timer.stop() // print time elapsed from new() to now
 timer.diff() // print time elapsed from last stop()/diff() to now
 #+END_SRC
@@ -51,7 +51,7 @@ bar.quit();
 
 *** IterPro
 #+BEGIN_SRC rust
-for _ in IterPro::new((0..101).into_iter()) {
+for _ in IterPro::new((0..101).into_iter().take(20)) {
     thread::sleep(Duration::from_millis(50));
 }
 #+END_SRC
