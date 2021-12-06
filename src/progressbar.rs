@@ -1,3 +1,12 @@
+//! A progress bar implementation.
+//!
+//! version 0.1.1
+//! https://github.com/wufangjie/utils/blob/main/src/progressbar.rs
+//!
+//! struct ProgressBar (use new(total), goto(i), quit() to control progress)
+//! struct IterPro (use IterPro::new(iter) to print progress)
+//! trait Progress (use iter.progress() to print progress)
+
 use std::io::{self, Write};
 
 pub struct ProgressBar {
@@ -86,8 +95,23 @@ where
     }
 }
 
+pub trait Progress<I, T>
+where
+    I: Iterator<Item = T>,
+{
+    fn progress(self) -> IterPro<I, T>;
+}
+
+impl<I, T> Progress<I, T> for I
+where
+    I: Iterator<Item = T>,
+{
+    fn progress(self) -> IterPro<I, T> {
+        IterPro::new(self)
+    }
+}
+
 #[cfg(test)]
-#[ignore]
 mod test_pb {
     use super::*;
     use std::thread;
@@ -95,6 +119,7 @@ mod test_pb {
 
     #[test]
     fn test_pb() {
+        // import ProgressBar struct
         let iter = (0..101).into_iter();
         let n = iter.len();
         let mut bar = ProgressBar::new(n);
@@ -107,7 +132,16 @@ mod test_pb {
 
     #[test]
     fn test_pb2() {
-        for _ in IterPro::new((0..101).into_iter()) {
+        // import IterPro struct
+        for _ in IterPro::new((0..101).into_iter().take(60)) {
+            thread::sleep(Duration::from_millis(50));
+        }
+    }
+
+    #[test]
+    fn test_pb3() {
+        // import Progress trait
+        for _ in (0..101).into_iter().skip(40).progress() {
             thread::sleep(Duration::from_millis(50));
         }
     }
