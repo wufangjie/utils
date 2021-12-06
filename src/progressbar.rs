@@ -55,15 +55,15 @@ impl ProgressBar {
     }
 }
 
-pub struct IterPro<I: Iterator<Item = T>, T> {
+pub struct IterPro<I: Iterator> {
     bar: ProgressBar,
     iter: I,
     count: usize,
 }
 
-impl<I, T> IterPro<I, T>
+impl<I> IterPro<I>
 where
-    I: Iterator<Item = T>,
+    I: Iterator,
 {
     pub fn new(iter: I) -> Self {
         let (mut total, hi) = iter.size_hint();
@@ -78,11 +78,11 @@ where
     }
 }
 
-impl<I, T> Iterator for IterPro<I, T>
+impl<I> Iterator for IterPro<I>
 where
-    I: Iterator<Item = T>,
+    I: Iterator,
 {
-    type Item = T;
+    type Item = I::Item;
 
     fn next(&mut self) -> Option<Self::Item> {
         self.bar.goto(self.count);
@@ -95,21 +95,19 @@ where
     }
 }
 
-pub trait Progress<I, T>
-where
-    I: Iterator<Item = T>,
-{
-    fn progress(self) -> IterPro<I, T>;
+pub trait Progress<I: Iterator> {
+    fn progress(self) -> IterPro<I>;
 }
 
-impl<I, T> Progress<I, T> for I
+impl<I> Progress<I> for I
 where
-    I: Iterator<Item = T>,
+    I: Iterator,
 {
-    fn progress(self) -> IterPro<I, T> {
+    fn progress(self) -> IterPro<I> {
         IterPro::new(self)
     }
 }
+
 
 #[cfg(test)]
 mod test_pb {
