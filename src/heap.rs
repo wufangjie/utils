@@ -1,10 +1,15 @@
-// NOTE: std::collections::BinaryHeap is a max heap,
-// as fast as this min heap implemention.
+//! A Min-BinaryHeap implementation.
+//!
+//! version 0.1.1
+//! https://github.com/wufangjie/utils/blob/main/src/heap.rs
+//!
+//! NOTE: std::collections::BinaryHeap is a max heap,
+//! as fast as this min heap implemention.
 
 #[derive(Debug)]
 pub struct Heap<T: PartialOrd> {
-    size: usize,
     data: Vec<T>,
+    size: usize,
 }
 
 impl<T> Heap<T>
@@ -13,11 +18,17 @@ where
 {
     pub fn new() -> Heap<T> {
         Heap {
-            size: 0,
             data: vec![],
+            size: 0,
         }
     }
 
+    #[inline]
+    pub fn len(&self) -> usize {
+        self.size
+    }
+
+    #[inline]
     pub fn is_empty(&self) -> bool {
         self.size == 0
     }
@@ -35,6 +46,20 @@ where
         }
     }
 
+    pub fn push(&mut self, item: T) {
+        self.size += 1;
+        self.data.push(item);
+        self.heapify_upward(self.size - 1);
+    }
+
+    pub fn pushpop(&mut self, mut item: T) -> T {
+        if self.size > 0 && item > self.data[0] {
+            std::mem::swap(&mut item, &mut self.data[0]);
+            self.heapify_downward(0);
+        }
+        item
+    }
+
     fn heapify_downward(&mut self, i: usize) {
         let j = (i + 1) << 1;
         if j < self.size && self.data[i] > self.data[j] {
@@ -45,17 +70,10 @@ where
                 self.data.swap(i, j);
                 self.heapify_downward(j);
             }
-        }
-        if j - 1 < self.size && self.data[i] > self.data[j - 1] {
+        } else if j - 1 < self.size && self.data[i] > self.data[j - 1] {
             self.data.swap(i, j - 1);
             self.heapify_downward(j - 1);
         }
-    }
-
-    pub fn push(&mut self, item: T) {
-        self.size += 1;
-        self.data.push(item);
-        self.heapify_upward(self.size - 1);
     }
 
     fn heapify_upward(&mut self, i: usize) {
