@@ -16,4 +16,4 @@ pub mod timer;
 pub use timer::Timer;
 
 pub mod progressbar;
-pub use progressbar::{ProgressBar, IterPro, Progress};
+pub use progressbar::{IterPro, Progress, ProgressBar};
