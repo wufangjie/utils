@@ -5,6 +5,7 @@
 + [linkedlist] another implement (std::collections::LinkedList)
 + [avl tree]
 + [trie] TODO: hashmap version?
++ [disjoint set]
 
 ** macros, structs for debug
 *** dbgt!(&anything)

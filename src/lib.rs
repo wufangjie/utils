@@ -17,3 +17,6 @@ pub use timer::Timer;
 
 pub mod progressbar;
 pub use progressbar::{IterPro, Progress, ProgressBar};
+
+pub mod disjointset;
+pub use disjointset::DisjointSet;
