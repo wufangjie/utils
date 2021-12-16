@@ -79,14 +79,14 @@ where
     fn heapify_upward(&mut self, i: usize) {
         if i > 0 {
             let j = if (i & 1) == 1 {
-		((i + 1) >> 1) - 1
+                ((i + 1) >> 1) - 1
             } else {
-		(i >> 1) - 1
+                (i >> 1) - 1
             };
             if self.data[i] < self.data[j] {
-		self.data.swap(i, j);
-		self.heapify_upward(j);
+                self.data.swap(i, j);
+                self.heapify_upward(j);
             }
-	}
+        }
     }
 }
