@@ -1,6 +1,6 @@
 //! A Min-BinaryHeap implementation.
 //!
-//! version 0.1.1
+//! version 0.1.3
 //! https://github.com/wufangjie/utils/blob/main/src/heap.rs
 //!
 //! NOTE: std::collections::BinaryHeap is a max heap,
@@ -60,6 +60,15 @@ where
         item
     }
 
+    pub fn peek(&self) -> Option<&T> {
+        self.data.get(0)
+    }
+
+    // pub fn peek_mut(&mut self) -> Option<&mut T> {
+    // 	// TODO: directly get_mut may break heap
+    //     self.data.get_mut(0)
+    // }
+
     fn heapify_downward(&mut self, i: usize) {
         let j = (i + 1) << 1;
         if j < self.size && self.data[i] > self.data[j] {
@@ -90,3 +99,13 @@ where
         }
     }
 }
+
+// #[test]
+// fn test_heap() {
+//     let mut heap = Heap::new();
+//     heap.push(3);
+//     heap.push(2);
+//     heap.push(1);
+//     *heap.peek_mut().unwrap() += 4;
+//     dbg!(&heap);
+// }
