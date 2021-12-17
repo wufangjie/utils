@@ -20,3 +20,9 @@ pub use progressbar::{IterPro, Progress, ProgressBar};
 
 pub mod disjointset;
 pub use disjointset::DisjointSet;
+
+pub mod segmenttree;
+pub use segmenttree::SegmentTree;
+
+pub mod bisect;
+pub use bisect::Bisect;
