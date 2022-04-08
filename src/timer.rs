@@ -5,6 +5,12 @@ pub struct Timer {
     used: Duration,
 }
 
+impl Default for Timer {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Timer {
     pub fn new() -> Self {
         Timer {

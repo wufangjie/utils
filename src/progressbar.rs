@@ -1,6 +1,6 @@
 //! A progress bar implementation.
 //!
-//! version 0.1.1
+//! version 0.1.2
 //! https://github.com/wufangjie/utils/blob/main/src/progressbar.rs
 //!
 //! struct ProgressBar (use new(total), goto(i), quit() to control progress)
@@ -51,7 +51,7 @@ impl ProgressBar {
 
     pub fn quit(&mut self) {
         self.goto(self.total);
-        println!("");
+        println!();
     }
 }
 
@@ -117,9 +117,8 @@ mod test_pb {
     #[test]
     fn test_pb() {
         // import ProgressBar struct
-        let iter = (0..101).into_iter();
-        let n = iter.len();
-        let mut bar = ProgressBar::new(n);
+        let iter = 0..101; // use Range instead of iterator
+        let mut bar = ProgressBar::new(iter.len());
         for i in iter {
             bar.goto(i);
             thread::sleep(Duration::from_millis(50));

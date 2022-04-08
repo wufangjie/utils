@@ -1,5 +1,5 @@
 pub trait Bisect<T> {
-    fn bisect(&self, val:T) -> usize;
+    fn bisect(&self, val: T) -> usize;
     fn bisect_left(&self, val: T) -> usize;
     fn bisect_right(&self, val: T) -> usize;
 }
@@ -12,10 +12,10 @@ where
         let mut lo = 0;
         let mut hi = self.len(); // (len() -1, <=, mid -1) will overflow
         while lo < hi {
-            let mid = lo + hi >> 1;
-	    if self[mid] == val {
-		return mid;
-	    } else if self[mid] < val {
+            let mid = (lo + hi) >> 1;
+            if self[mid] == val {
+                return mid;
+            } else if self[mid] < val {
                 lo = mid + 1;
             } else {
                 hi = mid;
@@ -28,7 +28,7 @@ where
         let mut lo = 0;
         let mut hi = self.len();
         while lo < hi {
-            let mid = lo + hi >> 1;
+            let mid = (lo + hi) >> 1;
             if self[mid] < val {
                 lo = mid + 1;
             } else {
@@ -42,7 +42,7 @@ where
         let mut lo = 0;
         let mut hi = self.len();
         while lo < hi {
-            let mid = lo + hi >> 1;
+            let mid = (lo + hi) >> 1;
             if self[mid] <= val {
                 lo = mid + 1;
             } else {

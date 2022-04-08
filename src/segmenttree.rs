@@ -18,7 +18,7 @@ where
         + std::ops::AddAssign,
 {
     pub fn empty(n: usize) -> Self {
-	let leafs = vec![Default::default(); n];
+        let leafs = vec![Default::default(); n];
         let inter = vec![Default::default(); log2n(n - 1).max(2) - 1];
         Self { inter, leafs, n }
     }
@@ -60,8 +60,8 @@ where
             } else if min <= lo && max >= hi {
                 acc += self.inter[i]
             } else {
-                let mid = lo + hi >> 1;
-                let i2 = i + 1 << 1;
+                let mid = (lo + hi) >> 1;
+                let i2 = (i + 1) << 1;
                 stack.push((lo, mid, i2 - 1));
                 stack.push((mid + 1, hi, i2));
             }
@@ -76,30 +76,30 @@ where
 
     #[inline]
     pub fn update_by_diff(&mut self, idx: usize, diff: T) {
-	self.leafs[idx] += diff;
+        self.leafs[idx] += diff;
         let mut i = 0;
         let mut lo = 0;
         let mut hi = self.n - 1;
         while hi - lo > 0 {
             self.inter[i] += diff;
-            let mid = lo + hi >> 1;
+            let mid = (lo + hi) >> 1;
             if idx > mid {
                 lo = mid + 1;
-                i = i + 1 << 1;
+                i = (i + 1) << 1;
             } else {
                 hi = mid;
-                i = (i + 1 << 1) - 1;
+                i = ((i + 1) << 1) - 1;
             }
         }
     }
 
-    fn _new(inter: &mut Vec<T>, leafs: &Vec<T>, lo: usize, hi: usize, i: usize) -> T {
+    fn _new(inter: &mut Vec<T>, leafs: &[T], lo: usize, hi: usize, i: usize) -> T {
         match hi - lo {
             0 => inter[i] = leafs[lo],
             1 => inter[i] = leafs[lo] + leafs[hi],
             _ => {
-                let mid = lo + hi >> 1;
-                let i2 = i + 1 << 1;
+                let mid = (lo + hi) >> 1;
+                let i2 = (i + 1) << 1;
                 inter[i] = Self::_new(inter, leafs, lo, mid, i2 - 1)
                     + Self::_new(inter, leafs, mid + 1, hi, i2);
             }

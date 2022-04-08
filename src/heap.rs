@@ -1,6 +1,6 @@
 //! A Min-BinaryHeap implementation.
 //!
-//! version 0.1.3
+//! version 0.1.4
 //! https://github.com/wufangjie/utils/blob/main/src/heap.rs
 //!
 //! NOTE: std::collections::BinaryHeap is a max heap,
@@ -10,6 +10,12 @@
 pub struct Heap<T: PartialOrd> {
     data: Vec<T>,
     size: usize,
+}
+
+impl<T: PartialOrd> Default for Heap<T> {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl<T> Heap<T>

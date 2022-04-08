@@ -1,6 +1,6 @@
 //! A AVL tree is a self-balancing binary search tree.
 //!
-//! version 0.1.2
+//! version 0.1.3
 //! https://github.com/wufangjie/utils/blob/main/src/avl.rs
 //!
 //! This tree node use diff(balance factor) instead of regular height,
@@ -21,19 +21,23 @@ pub struct AVL<T: Ord> {
     root: Option<Box<AVLNode<T>>>,
 }
 
-impl<T> AVL<T>
-where
-    T: Ord + fmt::Debug,
-{
+impl<T: Ord> Default for AVL<T> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl<T: Ord> AVL<T> {
     pub fn new() -> Self {
         AVL { root: None }
     }
 
     pub fn search(&self, item: &T) -> bool {
-        match self.search_by(|x| item.cmp(x)) {
-            Some(_) => true,
-            None => false,
-        }
+        self.search_by(|x| item.cmp(x)).is_some()
+        // match self.search_by(|x| item.cmp(x)) {
+        //     Some(_) => true,
+        //     None => false,
+        // }
     }
 
     pub fn search_by(&self, cmp: impl Fn(&T) -> Ordering) -> Option<&T> {
@@ -170,15 +174,13 @@ where
             if node.diff == 0 {
                 node.diff = -flag;
                 break;
-            } else {
-                if flag * node.diff < 0 {
-                    let diff = node.diff;
-                    if Self::rebalance_r(top, diff) {
-                        break;
-                    }
-                } else {
-                    node.diff = 0;
+            } else if flag * node.diff < 0 {
+                let diff = node.diff;
+                if Self::rebalance_r(top, diff) {
+                    break;
                 }
+            } else {
+                node.diff = 0;
             }
         }
         ret.map(|node| node.data)
@@ -200,14 +202,6 @@ where
         IterBfs { queue }
     }
 
-    pub fn pprint(&self) {
-        if let Some(node) = &self.root {
-            node.pprint_dfs("", " ");
-        } else {
-            println!(" ()");
-        }
-    }
-
     fn rebalance_i(top: &mut Option<Box<AVLNode<T>>>, diff: i8, diff_child: i8) {
         if diff == 1 {
             if diff_child >= 0 {
@@ -219,16 +213,14 @@ where
                 Self::rotate_right(top);
                 Self::update_diff_2r(top);
             }
+        } else if diff_child <= 0 {
+            Self::rotate_left(top);
+            Self::update_diff(top, -1, 0);
+            Self::update_diff(top, 0, 0);
         } else {
-            if diff_child <= 0 {
-                Self::rotate_left(top);
-                Self::update_diff(top, -1, 0);
-                Self::update_diff(top, 0, 0);
-            } else {
-                Self::rotate_right(&mut top.as_mut().unwrap().right);
-                Self::rotate_left(top);
-                Self::update_diff_2r(top);
-            }
+            Self::rotate_right(&mut top.as_mut().unwrap().right);
+            Self::rotate_left(top);
+            Self::update_diff_2r(top);
         }
     }
 
@@ -304,6 +296,19 @@ where
             Self::update_diff(top, d1, 0);
             Self::update_diff(top, 0, 0);
             false
+        }
+    }
+}
+
+impl<T> AVL<T>
+where
+    T: Ord + fmt::Debug,
+{
+    pub fn pprint(&self) {
+        if let Some(node) = &self.root {
+            node.pprint_dfs("", " ");
+        } else {
+            println!(" ()");
         }
     }
 }
@@ -426,7 +431,6 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::dbgt;
 
     impl<T> AVL<T>
     where

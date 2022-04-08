@@ -1,11 +1,12 @@
 //! A Doubly Linked List implementation.
 //!
-//! version 0.1.0
+//! version 0.1.1
 //! https://github.com/wufangjie/utils/blob/main/src/linkedlist.rs
 //!
 //! Forward list share the ownership, backward list is just raw pointer
 //! Only used two `unsafe` to save loop time
 
+use std::cmp::Ordering;
 use std::fmt;
 use std::ptr;
 
@@ -23,10 +24,13 @@ pub struct ListNode<T> {
     prev: *mut ListNode<T>,
 }
 
-impl<T> LinkedList<T>
-where
-    T: fmt::Display + fmt::Debug,
-{
+impl<T> Default for LinkedList<T> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl<T> LinkedList<T> {
     pub fn new() -> Self {
         LinkedList {
             head: None,
@@ -130,20 +134,35 @@ where
     }
 
     pub fn remove_at(&mut self, i: usize) -> Option<T> {
-        if i > self.len - 1 {
-            None
-        } else if i == self.len - 1 {
-            self.pop_back()
-        } else {
-            let mut p = &mut self.head;
-            for _ in 0..i {
-                if let Some(node) = p {
-                    p = &mut node.next;
+        match i.cmp(&(self.len - 1)) {
+            Ordering::Greater => None,
+            Ordering::Equal => self.pop_back(),
+            Ordering::Less => {
+                let mut p = &mut self.head;
+                for _ in 0..i {
+                    if let Some(node) = p {
+                        p = &mut node.next;
+                    }
                 }
+                self.len -= 1;
+                Self::remove_node(p)
             }
-            self.len -= 1;
-            Self::remove_node(p)
         }
+
+        // if i > self.len - 1 {
+        //     None
+        // } else if i == self.len - 1 {
+        //     self.pop_back()
+        // } else {
+        //     let mut p = &mut self.head;
+        //     for _ in 0..i {
+        //         if let Some(node) = p {
+        //             p = &mut node.next;
+        //         }
+        //     }
+        //     self.len -= 1;
+        //     Self::remove_node(p)
+        // }
     }
 
     pub fn remove_item(&mut self, item: T)
@@ -163,16 +182,16 @@ where
         }
     }
 
-    pub fn from_iter<I>(iter: I) -> Self
-    where
-        I: Iterator<Item = T>,
-    {
-        let mut lst = LinkedList::new();
-        for item in iter {
-            lst.push_back(item);
-        }
-        lst
-    }
+    // pub fn from_iter<I>(iter: I) -> Self
+    // where
+    //     I: Iterator<Item = T>,
+    // {
+    //     let mut lst = LinkedList::new();
+    //     for item in iter {
+    //         lst.push_back(item);
+    //     }
+    //     lst
+    // }
 
     pub fn is_empty(&self) -> bool {
         self.head.is_none()
@@ -195,6 +214,16 @@ where
         T: PartialEq,
     {
         self.iter().any(|v| v == x)
+    }
+}
+
+impl<T> FromIterator<T> for LinkedList<T> {
+    fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
+        let mut lst = Self::new();
+        for item in iter {
+            lst.push_back(item);
+        }
+        lst
     }
 }
 
@@ -259,19 +288,20 @@ impl<'a, T> Iterator for Iter<'a, T> {
 
 #[test]
 fn test_linkedlist() {
-    //let mut ll = LinkedList::from_iter(vec![9, 2, 3, 4, 5, 6].into_iter());
-    let mut ll = LinkedList::new();
-    for v in [4, 5, 6].into_iter() {
-        ll.push_back(v);
-    }
-    for v in [3, 2, 9].into_iter() {
-        ll.push_front(v);
-    }
+    let mut ll = LinkedList::from_iter(vec![9, 2, 3, 4, 5, 6].into_iter());
+    // let mut ll = LinkedList::new();
+    // for v in [4, 5, 6].into_iter() {
+    //     ll.push_back(v);
+    // }
+    // for v in [3, 2, 9].into_iter() {
+    //     ll.push_front(v);
+    // }
 
-    let mut stack = vec![];
-    stack.push(ll.pop_back());
-    stack.push(ll.pop_front());
-    stack.push(ll.pop_back());
+    let mut stack = vec![ll.pop_back(), ll.pop_front(), ll.pop_back()];
+    // let mut stack = vec![];
+    // stack.push(ll.pop_back());
+    // stack.push(ll.pop_front());
+    // stack.push(ll.pop_back());
     ll.push_back(42);
     ll.push_front(142);
     ll.push_front(12);
@@ -281,15 +311,16 @@ fn test_linkedlist() {
     while let Some(Some(v)) = stack.pop() {
         ll.push_front(v);
     }
-    ll.remove_at(2);
+    assert_eq!(Some(5), ll.remove_at(2));
+    assert_eq!(None, ll.remove_at(8));
     ll.remove_item(3);
     ll.remove_item(33);
     assert_eq!(7, ll.len());
 
-    println!("{}", ll);
+    assert_eq!("(6 -> 9 -> 12 -> 142 -> 2 -> 4 -> 42)", format!("{}", ll));
     assert!(ll.contains(&9));
     assert!(!ll.contains(&5));
-    assert!(ll.contains(&142));
-    assert!(!ll.contains(&3));
-    assert!(ll.contains(&42));
+    // assert!(ll.contains(&142));
+    // assert!(!ll.contains(&3));
+    // assert!(ll.contains(&42));
 }
