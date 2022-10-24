@@ -1,6 +1,6 @@
 //! A Min-BinaryHeap implementation.
 //!
-//! version 0.1.5
+//! version 0.1.6
 //! https://github.com/wufangjie/utils/blob/main/src/heap.rs
 //!
 //! NOTE: std::collections::BinaryHeap is a max heap,
@@ -70,31 +70,64 @@ where
     //     self.data.get_mut(0)
     // }
 
-    fn heapify_downward(&mut self, i: usize) {
-        let j = (i + 1) << 1;
-        if j < self.len() && self.data[i] > self.data[j] {
-            if self.data[j - 1] < self.data[j] {
+    fn heapify_downward(&mut self, mut i: usize) {
+        let n = self.len();
+        loop {
+            let j = (i + 1) << 1;
+            if j < n && self.data[i] > self.data[j] {
+                if self.data[j - 1] < self.data[j] {
+                    self.data.swap(i, j - 1);
+                    i = j - 1;
+                } else {
+                    self.data.swap(i, j);
+                    i = j;
+                }
+            } else if j - 1 < n && self.data[i] > self.data[j - 1] {
                 self.data.swap(i, j - 1);
-                self.heapify_downward(j - 1);
+                i = j - 1;
             } else {
-                self.data.swap(i, j);
-                self.heapify_downward(j);
+                return;
             }
-        } else if j - 1 < self.len() && self.data[i] > self.data[j - 1] {
-            self.data.swap(i, j - 1);
-            self.heapify_downward(j - 1);
         }
     }
 
-    fn heapify_upward(&mut self, i: usize) {
-        if i > 0 {
+    fn heapify_upward(&mut self, mut i: usize) {
+        while i > 0 {
             let j = (i - 1) >> 1;
             if self.data[i] < self.data[j] {
                 self.data.swap(i, j);
-                self.heapify_upward(j);
+                i = j;
+            } else {
+                return;
             }
         }
     }
+
+    // fn heapify_downward(&mut self, i: usize) {
+    //     let j = (i + 1) << 1;
+    //     if j < self.len() && self.data[i] > self.data[j] {
+    //         if self.data[j - 1] < self.data[j] {
+    //             self.data.swap(i, j - 1);
+    //             self.heapify_downward(j - 1);
+    //         } else {
+    //             self.data.swap(i, j);
+    //             self.heapify_downward(j);
+    //         }
+    //     } else if j - 1 < self.len() && self.data[i] > self.data[j - 1] {
+    //         self.data.swap(i, j - 1);
+    //         self.heapify_downward(j - 1);
+    //     }
+    // }
+
+    // fn heapify_upward(&mut self, i: usize) {
+    //     if i > 0 {
+    //         let j = (i - 1) >> 1;
+    //         if self.data[i] < self.data[j] {
+    //             self.data.swap(i, j);
+    //             self.heapify_upward(j);
+    //         }
+    //     }
+    // }
 }
 
 impl<T: PartialOrd> From<Vec<T>> for Heap<T> {
