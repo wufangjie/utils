@@ -1,6 +1,6 @@
 //! A Avl tree is a self-balancing binary search tree.
 //!
-//! version 0.2.1
+//! version 0.2.2
 //! https://github.com/wufangjie/utils/blob/main/src/avl.rs
 //!
 //! This tree node use diff (balance factor) instead of regular height,
@@ -13,6 +13,7 @@
 //! since using Fn, we may not know the whole data (partial condition).
 //!
 //! Removing unsafe code (using recursive instead)
+//! iter_dfs: preorder to inorder (so that we can make an ordered hashmap)
 
 use std::cmp::Ordering;
 use std::collections::VecDeque;
@@ -49,9 +50,15 @@ impl<T: Ord> Avl<T> {
     }
 
     pub fn iter_dfs(&self) -> IterDfs<'_, T> {
-        let mut stack = vec![];
-        if let Some(node) = &self.root {
-            stack.push(&**node);
+        let mut stack = Vec::<&AvlNode<T>>::new(); //vec![];
+        let mut p = &self.root;
+        if let Some(node) = p {
+            stack.push(node);
+            p = &node.left;
+            while let Some(node) = p {
+                stack.push(node);
+                p = &node.left;
+            }
         }
         IterDfs { stack }
     }
@@ -406,12 +413,22 @@ where
             None => None,
             Some(node) => {
                 let ret = &node.data;
-                if let Some(right) = &node.right {
-                    self.stack.push(right);
+                let mut p = &node.right;
+                if let Some(node) = p {
+                    self.stack.push(&node);
+                    p = &node.left;
+                    while let Some(node) = p {
+                        self.stack.push(&node);
+                        p = &node.left;
+                    }
                 }
-                if let Some(left) = &node.left {
-                    self.stack.push(left);
-                }
+                // let mut left = node.left;
+                // if let Some(right) = &node.right {
+                //     self.stack.push(right);
+                // }
+                // if let Some(left) = &node.left {
+                //     self.stack.push(left);
+                // }
                 Some(ret)
             }
         }
@@ -581,7 +598,8 @@ mod tests {
         ////////////////////////////////////////////////////////////////////////
         assert_eq!(
             t7.iter_dfs().collect::<Vec<&i32>>(),
-            [8, 5, 3, 2, 4, 7, 6, 65, 9, 66, 67]
+            [2, 3, 4, 5, 6, 7, 8, 9, 65, 66, 67]
+                //[8, 5, 3, 2, 4, 7, 6, 65, 9, 66, 67]
                 .iter()
                 .collect::<Vec<&i32>>()
         );
