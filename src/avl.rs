@@ -1,13 +1,13 @@
-//! A AVL tree is a self-balancing binary search tree.
+//! A Avl tree is a self-balancing binary search tree.
 //!
-//! version 0.2.0
+//! version 0.2.1
 //! https://github.com/wufangjie/utils/blob/main/src/avl.rs
 //!
 //! This tree node use diff (balance factor) instead of regular height,
-//! because, in most case, we do not interest in the height of an AVL tree,
+//! because, in most case, we do not interest in the height of an Avl tree,
 //! and this change will reduce the memory usage (usize -> i8)
 //!
-//! Implemented pprint() for AVL tree Visualization.
+//! Implemented pprint() for Avl tree Visualization.
 //!
 //! search_by(), remove_by() now return an Option,
 //! since using Fn, we may not know the whole data (partial condition).
@@ -19,19 +19,19 @@ use std::collections::VecDeque;
 use std::fmt;
 
 #[derive(Debug)]
-pub struct AVL<T: Ord> {
-    root: Option<Box<AVLNode<T>>>,
+pub struct Avl<T: Ord> {
+    root: Option<Box<AvlNode<T>>>,
 }
 
-impl<T: Ord> Default for AVL<T> {
+impl<T: Ord> Default for Avl<T> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<T: Ord> AVL<T> {
+impl<T: Ord> Avl<T> {
     pub fn new() -> Self {
-        AVL { root: None }
+        Avl { root: None }
     }
 
     pub fn height(&self) -> usize {
@@ -66,7 +66,7 @@ impl<T: Ord> AVL<T> {
 }
 
 /// impl: search, insert and remove
-impl<T: Ord> AVL<T> {
+impl<T: Ord> Avl<T> {
     pub fn search(&self, item: &T) -> bool {
         self.search_by(|x| item.cmp(x)).is_some()
         // match self.search_by(|x| item.cmp(x)) {
@@ -106,7 +106,7 @@ impl<T: Ord> AVL<T> {
 
     /// rotate right without updating diff
     #[allow(unused_must_use)]
-    fn rotate_right(top: &mut Option<Box<AVLNode<T>>>) {
+    fn rotate_right(top: &mut Option<Box<AvlNode<T>>>) {
         let mut left = top.as_mut().unwrap().left.take();
         let lr = left.as_mut().unwrap().right.take();
         std::mem::replace(&mut top.as_mut().unwrap().left, lr);
@@ -116,7 +116,7 @@ impl<T: Ord> AVL<T> {
 
     /// rotate left without updating diff
     #[allow(unused_must_use)]
-    fn rotate_left(top: &mut Option<Box<AVLNode<T>>>) {
+    fn rotate_left(top: &mut Option<Box<AvlNode<T>>>) {
         let mut right = top.as_mut().unwrap().right.take();
         let rl = right.as_mut().unwrap().left.take();
         std::mem::replace(&mut top.as_mut().unwrap().right, rl);
@@ -128,7 +128,7 @@ impl<T: Ord> AVL<T> {
     /// return true means keeping the origin height (i.e. no need to backtrace)
     /// the return value is only for removing
     /// for inserting, we will always need balance once (since we insert one by one)
-    fn rebalance(top: &mut Option<Box<AVLNode<T>>>, diff: i8) -> bool {
+    fn rebalance(top: &mut Option<Box<AvlNode<T>>>, diff: i8) -> bool {
         if diff == 1 {
             let diff_child = top.as_mut().unwrap().left.as_mut().unwrap().diff;
             if diff_child == -1 {
@@ -156,7 +156,7 @@ impl<T: Ord> AVL<T> {
     /// NOTE: final top's left and right children's diffs only depend on the original grandchild's diff
     /// after twice rotating, current top is actually the original grandchild
     /// finally the top node's diff always equal to 0 and no need backtrace any more
-    fn update_diff_2r(top: &mut Option<Box<AVLNode<T>>>) -> bool {
+    fn update_diff_2r(top: &mut Option<Box<AvlNode<T>>>) -> bool {
         let (dl, dr) = match top.as_mut().unwrap().diff {
             -1 => (1, 0),
             1 => (0, -1),
@@ -170,7 +170,7 @@ impl<T: Ord> AVL<T> {
 
     /// all possible cases: (1, 0), (1, 1), (-1, 0), (-1, -1)
     /// return true means keep the original (before inserting or removing) height, no need to backtrace
-    fn update_diff_1r(top: &mut Option<Box<AVLNode<T>>>, d1: i8, d2: i8) -> bool {
+    fn update_diff_1r(top: &mut Option<Box<AvlNode<T>>>, d1: i8, d2: i8) -> bool {
         if d2 == 0 {
             Self::update_diff(top, d1, d1);
             Self::update_diff(top, 0, -d1);
@@ -184,7 +184,7 @@ impl<T: Ord> AVL<T> {
 
     /// reset one node's diff or its (left | right) child's diff
     #[inline]
-    fn update_diff(top: &mut Option<Box<AVLNode<T>>>, which: i8, new: i8) {
+    fn update_diff(top: &mut Option<Box<AvlNode<T>>>, which: i8, new: i8) {
         match which {
             -1 => top.as_mut().unwrap().left.as_mut().unwrap().diff = new,
             1 => top.as_mut().unwrap().right.as_mut().unwrap().diff = new,
@@ -195,7 +195,7 @@ impl<T: Ord> AVL<T> {
     /// reset diff through its child (backtrace)
     /// which: {-1, 1} means backtrace from left or right child
     /// change: {-1, 0, 1} means the specific child's depth decreased, not change or increased
-    fn backtrace(node: &mut Option<Box<AVLNode<T>>>, which: i8, change: i8) -> i8 {
+    fn backtrace(node: &mut Option<Box<AvlNode<T>>>, which: i8, change: i8) -> i8 {
         let diff = node.as_ref().unwrap().diff;
         match change {
             0 => 0,
@@ -236,9 +236,9 @@ impl<T: Ord> AVL<T> {
         }
     }
 
-    fn insert_rec(node: &mut Option<Box<AVLNode<T>>>, item: T) -> (i8, bool) {
+    fn insert_rec(node: &mut Option<Box<AvlNode<T>>>, item: T) -> (i8, bool) {
         if node.is_none() {
-            let mut leaf = Some(Box::new(AVLNode::new(item)));
+            let mut leaf = Some(Box::new(AvlNode::new(item)));
             std::mem::swap(node, &mut leaf);
             return (1, true);
         }
@@ -260,14 +260,15 @@ impl<T: Ord> AVL<T> {
 
     /// use recursive to keep original &mut node, this can void using unsafe code
     /// but it seems can not convert to stack based code
+    /// i8: {0, -1} means not change depth or decreased 1 depth
     fn remove_by_rec(
-        node: &mut Option<Box<AVLNode<T>>>,
+        node: &mut Option<Box<AvlNode<T>>>,
         cmp: impl Fn(&T) -> Ordering,
     ) -> (i8, Option<T>) {
         if node.is_none() {
             return (0, None);
         }
-        match cmp(&node.as_mut().unwrap().data) {
+        match cmp(&node.as_ref().unwrap().data) {
             Ordering::Equal => {
                 let inner = node.as_mut().unwrap();
                 if inner.left.is_none() {
@@ -303,7 +304,7 @@ impl<T: Ord> AVL<T> {
     /// it is commonly used for finding predecessor
     /// NOTE: before calling this recursive function, make sure `node` is not None
     /// return (child depth changed, removed)
-    fn remove_right_most_rec(node: &mut Option<Box<AVLNode<T>>>) -> (i8, Box<AVLNode<T>>) {
+    fn remove_right_most_rec(node: &mut Option<Box<AvlNode<T>>>) -> (i8, Box<AvlNode<T>>) {
         if node.as_mut().unwrap().right.is_some() {
             let (mut delta, ret) = Self::remove_right_most_rec(&mut node.as_mut().unwrap().right);
             delta = Self::backtrace(node, 1, delta);
@@ -316,7 +317,7 @@ impl<T: Ord> AVL<T> {
     }
 }
 
-impl<T> AVL<T>
+impl<T> Avl<T>
 where
     T: Ord + fmt::Debug,
 {
@@ -329,7 +330,7 @@ where
     }
 }
 
-impl<T> fmt::Display for AVL<T>
+impl<T> fmt::Display for Avl<T>
 where
     T: Ord + fmt::Display + fmt::Debug,
 {
@@ -349,19 +350,19 @@ where
 }
 
 #[derive(Debug)]
-pub struct AVLNode<T: Ord> {
+pub struct AvlNode<T: Ord> {
     data: T,
-    left: Option<Box<AVLNode<T>>>,
-    right: Option<Box<AVLNode<T>>>,
+    left: Option<Box<AvlNode<T>>>,
+    right: Option<Box<AvlNode<T>>>,
     diff: i8, // left height - right height
 }
 
-impl<T> AVLNode<T>
+impl<T> AvlNode<T>
 where
     T: Ord,
 {
     pub fn new(data: T) -> Self {
-        AVLNode {
+        AvlNode {
             data,
             left: None,
             right: None,
@@ -370,7 +371,7 @@ where
     }
 }
 
-impl<T> AVLNode<T>
+impl<T> AvlNode<T>
 where
     T: Ord + fmt::Debug,
 {
@@ -390,7 +391,7 @@ where
 }
 
 pub struct IterDfs<'a, T: Ord> {
-    stack: Vec<&'a AVLNode<T>>,
+    stack: Vec<&'a AvlNode<T>>,
 }
 
 impl<'a, T> Iterator for IterDfs<'a, T>
@@ -418,7 +419,7 @@ where
 }
 
 pub struct IterBfs<'a, T: Ord> {
-    queue: VecDeque<&'a AVLNode<T>>,
+    queue: VecDeque<&'a AvlNode<T>>,
 }
 
 impl<'a, T> Iterator for IterBfs<'a, T>
@@ -448,11 +449,11 @@ where
 mod tests {
     use super::*;
 
-    impl<T> AVL<T>
+    impl<T> Avl<T>
     where
         T: Ord + fmt::Debug,
     {
-        fn height2(p: &Option<Box<AVLNode<T>>>) -> isize {
+        fn height2(p: &Option<Box<AvlNode<T>>>) -> isize {
             if let Some(node) = p {
                 let hl = Self::height2(&node.left);
                 let hr = Self::height2(&node.right);
@@ -481,7 +482,7 @@ mod tests {
             }
         }
 
-        fn inorder_dfs<'a>(node: &'a Option<Box<AVLNode<T>>>, res: &mut Vec<&'a T>) {
+        fn inorder_dfs<'a>(node: &'a Option<Box<AvlNode<T>>>, res: &mut Vec<&'a T>) {
             if let Some(node) = node {
                 Self::inorder_dfs(&node.left, res);
                 res.push(&node.data);
@@ -504,7 +505,7 @@ mod tests {
 
     #[test]
     fn test_avl() {
-        let mut t1 = AVL::new();
+        let mut t1 = Avl::new();
         for i in [20, 4, 26, 3, 9, 15] {
             t1.insert(i);
         }
@@ -512,7 +513,7 @@ mod tests {
         // dbgt!(&t1);
         // println!("{}", t1);
 
-        let mut t2 = AVL::new();
+        let mut t2 = Avl::new();
         for i in [20, 4, 26, 3, 9, 21, 30, 2, 7, 11, 15] {
             t2.insert(i);
         }
@@ -520,7 +521,7 @@ mod tests {
         // dbgt!(&t2);
         // println!("{}", t2);
 
-        let mut t3 = AVL::new();
+        let mut t3 = Avl::new();
         for i in [20, 4, 26, 3, 9, 8] {
             t3.insert(i);
         }
@@ -528,7 +529,7 @@ mod tests {
         // dbgt!(&t3);
         // println!("{}", t3);
 
-        let mut t4 = AVL::new();
+        let mut t4 = Avl::new();
         for i in [20, 4, 26, 3, 9, 21, 30, 2, 7, 11, 8] {
             t4.insert(i);
         }
@@ -545,7 +546,7 @@ mod tests {
         ////////////////////////////////////////////////////////////////////////
         // delete
         ////////////////////////////////////////////////////////////////////////
-        let mut t5 = AVL::new();
+        let mut t5 = Avl::new();
         for i in [2, 1, 4, 3, 5] {
             t5.insert(i);
         }
@@ -554,7 +555,7 @@ mod tests {
         // dbgt!(&t5);
         // println!("{}", t5);
 
-        let mut t6 = AVL::new();
+        let mut t6 = Avl::new();
         for i in [6, 2, 9, 1, 4, 8, 66, 3, 5, 7, 65, 67, 68] {
             t6.insert(i);
         }
@@ -566,7 +567,7 @@ mod tests {
         // dbgt!(&t6);
         // println!("{}", t6);
 
-        let mut t7 = AVL::new();
+        let mut t7 = Avl::new();
         for i in [5, 2, 8, 1, 3, 7, 65, 4, 6, 9, 66, 67] {
             t7.insert(i);
         }
@@ -613,7 +614,7 @@ mod tests {
         // t6.assert_valid_bst();
         // t7.assert_valid_bst();
 
-        let mut t8 = AVL::new();
+        let mut t8 = Avl::new();
         for i in [
             8, 94, 4, 50, 17, 15, 37, 1, 25, 42, 39, 13, 83, 32, 89, 24, 6, 70, 90, 22, 10, 11, 68,
             72, 49, 99, 45, 19, 38, 28, 63, 16, 77, 46, 65, 33, 34, 60, 53, 54, 40, 84, 2, 56, 57,
@@ -630,7 +631,7 @@ mod tests {
         }
         // t8.pprint();
 
-        let mut t9 = AVL::new();
+        let mut t9 = Avl::new();
         for i in [
             (4, 5),
             (4, 2),
