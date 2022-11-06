@@ -13,11 +13,11 @@
 //! since using Fn, we may not know the whole data (partial condition).
 //!
 //! Removing unsafe code (using recursive instead)
-//! iter_dfs: preorder to inorder (so that we can make an ordered hashmap)
+//! iter_dfs: preorder to inorder (so that we can make an ordered map)
 
 use std::cmp::Ordering;
-use std::collections::VecDeque;
 use std::fmt;
+use std::mem;
 
 #[derive(Debug)]
 pub struct Avl<T: Ord> {
@@ -61,14 +61,6 @@ impl<T: Ord> Avl<T> {
             }
         }
         IterDfs { stack }
-    }
-
-    pub fn iter_bfs(&self) -> IterBfs<'_, T> {
-        let mut queue = VecDeque::new();
-        if let Some(node) = &self.root {
-            queue.push_back(&**node);
-        }
-        IterBfs { queue }
     }
 }
 
@@ -116,9 +108,9 @@ impl<T: Ord> Avl<T> {
     fn rotate_right(top: &mut Option<Box<AvlNode<T>>>) {
         let mut left = top.as_mut().unwrap().left.take();
         let lr = left.as_mut().unwrap().right.take();
-        std::mem::replace(&mut top.as_mut().unwrap().left, lr);
-        std::mem::swap(&mut left, top);
-        std::mem::replace(&mut top.as_mut().unwrap().right, left);
+        mem::replace(&mut top.as_mut().unwrap().left, lr);
+        mem::swap(&mut left, top);
+        mem::replace(&mut top.as_mut().unwrap().right, left);
     }
 
     /// rotate left without updating diff
@@ -126,9 +118,9 @@ impl<T: Ord> Avl<T> {
     fn rotate_left(top: &mut Option<Box<AvlNode<T>>>) {
         let mut right = top.as_mut().unwrap().right.take();
         let rl = right.as_mut().unwrap().left.take();
-        std::mem::replace(&mut top.as_mut().unwrap().right, rl);
-        std::mem::swap(&mut right, top);
-        std::mem::replace(&mut top.as_mut().unwrap().left, right);
+        mem::replace(&mut top.as_mut().unwrap().right, rl);
+        mem::swap(&mut right, top);
+        mem::replace(&mut top.as_mut().unwrap().left, right);
     }
 
     /// diff only can be 1 or -1, actually the current real diff is 2 or -2
@@ -246,7 +238,7 @@ impl<T: Ord> Avl<T> {
     fn insert_rec(node: &mut Option<Box<AvlNode<T>>>, item: T) -> (i8, bool) {
         if node.is_none() {
             let mut leaf = Some(Box::new(AvlNode::new(item)));
-            std::mem::swap(node, &mut leaf);
+            mem::swap(node, &mut leaf);
             return (1, true);
         }
         match item.cmp(&node.as_ref().unwrap().data) {
@@ -284,12 +276,12 @@ impl<T: Ord> Avl<T> {
                     } else {
                         // this right must be a leaf node
                         let mut right = node.as_mut().unwrap().right.take();
-                        std::mem::swap(node, &mut right);
+                        mem::swap(node, &mut right);
                         (-1, Some(right.unwrap().data))
                     }
                 } else {
                     let (mut delta, mut removed) = Self::remove_right_most_rec(&mut inner.left);
-                    std::mem::swap(&mut inner.data, &mut removed.data);
+                    mem::swap(&mut inner.data, &mut removed.data);
                     delta = Self::backtrace(node, -1, delta);
                     (delta, Some(removed.data))
                 }
@@ -318,7 +310,7 @@ impl<T: Ord> Avl<T> {
             (delta, ret)
         } else {
             let mut left = node.as_mut().unwrap().left.take();
-            std::mem::swap(node, &mut left);
+            mem::swap(node, &mut left);
             (-1, left.unwrap())
         }
     }
@@ -334,25 +326,6 @@ where
         } else {
             println!(" ()");
         }
-    }
-}
-
-impl<T> fmt::Display for Avl<T>
-where
-    T: Ord + fmt::Display + fmt::Debug,
-{
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "(")?;
-        let mut is_first_time = true;
-        for to_print in self.iter_bfs() {
-            if is_first_time {
-                is_first_time = false
-            } else {
-                write!(f, ", ")?;
-            }
-            write!(f, "{}", to_print)?;
-        }
-        write!(f, ")")
     }
 }
 
@@ -415,10 +388,10 @@ where
                 let ret = &node.data;
                 let mut p = &node.right;
                 if let Some(node) = p {
-                    self.stack.push(&node);
+                    self.stack.push(node);
                     p = &node.left;
                     while let Some(node) = p {
-                        self.stack.push(&node);
+                        self.stack.push(node);
                         p = &node.left;
                     }
                 }
@@ -435,41 +408,23 @@ where
     }
 }
 
-pub struct IterBfs<'a, T: Ord> {
-    queue: VecDeque<&'a AvlNode<T>>,
-}
-
-impl<'a, T> Iterator for IterBfs<'a, T>
-where
-    T: Ord,
-{
-    type Item = &'a T;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        match self.queue.pop_front() {
-            None => None,
-            Some(node) => {
-                let ret = &node.data;
-                if let Some(left) = &node.left {
-                    self.queue.push_back(left);
-                }
-                if let Some(right) = &node.right {
-                    self.queue.push_back(right);
-                }
-                Some(ret)
-            }
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::collections::VecDeque;
 
     impl<T> Avl<T>
     where
         T: Ord + fmt::Debug,
     {
+        pub fn iter_bfs(&self) -> IterBfs<'_, T> {
+            let mut queue = VecDeque::new();
+            if let Some(node) = &self.root {
+                queue.push_back(&**node);
+            }
+            IterBfs { queue }
+        }
+
         fn height2(p: &Option<Box<AvlNode<T>>>) -> isize {
             if let Some(node) = p {
                 let hl = Self::height2(&node.left);
@@ -513,6 +468,52 @@ mod tests {
             let n = res.len();
             for i in 1..n {
                 assert!(res[i - 1] <= res[i]);
+            }
+        }
+    }
+
+    impl<T> fmt::Display for Avl<T>
+    where
+        T: Ord + fmt::Display + fmt::Debug,
+    {
+        fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+            write!(f, "(")?;
+            let mut is_first_time = true;
+            for to_print in self.iter_bfs() {
+                if is_first_time {
+                    is_first_time = false
+                } else {
+                    write!(f, ", ")?;
+                }
+                write!(f, "{}", to_print)?;
+            }
+            write!(f, ")")
+        }
+    }
+
+    pub struct IterBfs<'a, T: Ord> {
+        queue: VecDeque<&'a AvlNode<T>>,
+    }
+
+    impl<'a, T> Iterator for IterBfs<'a, T>
+    where
+        T: Ord,
+    {
+        type Item = &'a T;
+
+        fn next(&mut self) -> Option<Self::Item> {
+            match self.queue.pop_front() {
+                None => None,
+                Some(node) => {
+                    let ret = &node.data;
+                    if let Some(left) = &node.left {
+                        self.queue.push_back(left);
+                    }
+                    if let Some(right) = &node.right {
+                        self.queue.push_back(right);
+                    }
+                    Some(ret)
+                }
             }
         }
     }
@@ -666,7 +667,7 @@ mod tests {
         t9.pprint();
         assert_eq!(Some((4, 2)), t9.remove_by(|x| 4.cmp(&x.0)));
         assert_eq!(None, t9.remove_by(|x| 9.cmp(&x.0)));
-        assert_eq!(false, t9.insert((4, 5)));
+        assert!(!t9.insert((4, 5)));
         t9.pprint();
     }
 }
