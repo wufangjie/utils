@@ -182,7 +182,7 @@ mod tests {
         is_a_min_heap(&heap);
 
         let mut heap = Heap::new();
-        for i in vec![11, 10, 4, 9, 7, 3, 1, 8, 6, 0, 5, 2] {
+        for i in &[11, 10, 4, 9, 7, 3, 1, 8, 6, 0, 5, 2] {
             heap.push(i);
         }
         is_a_min_heap(&heap);
