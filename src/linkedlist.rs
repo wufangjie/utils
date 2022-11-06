@@ -40,7 +40,7 @@ impl<T> LinkedList<T> {
     }
 
     pub fn push_back_node(&mut self, mut node: Box<ListNode<T>>) {
-        let p = (&*node).as_mut_ptr();
+        let p = (*node).as_mut_ptr();
         if self.len == 0 {
             self.head = Some(node);
         } else {
@@ -53,10 +53,10 @@ impl<T> LinkedList<T> {
 
     pub fn push_front_node(&mut self, mut node: Box<ListNode<T>>) {
         if self.len == 0 {
-            self.tail = (&*node).as_mut_ptr();
+            self.tail = (*node).as_mut_ptr();
         } else {
             if let Some(first) = &mut self.head {
-                first.prev = (&*node).as_mut_ptr();
+                first.prev = (*node).as_mut_ptr();
             }
             node.next = self.head.take();
         }
