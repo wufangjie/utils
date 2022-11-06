@@ -10,7 +10,10 @@ pub mod linkedlist;
 pub use linkedlist::{LinkedList, ListNode};
 
 pub mod avl;
-pub use avl::{AVLNode, AVL};
+pub use avl::{Avl, AvlNode};
+
+pub mod rbt;
+pub use rbt::{Rbt, RbtNode};
 
 pub mod timer;
 pub use timer::Timer;
