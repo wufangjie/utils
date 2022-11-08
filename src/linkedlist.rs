@@ -44,7 +44,7 @@ impl<T> LinkedList<T> {
         if self.len == 0 {
             self.head = Some(node);
         } else {
-            (*node).prev = self.tail;
+            node.prev = self.tail;
             unsafe { (*self.tail).next = Some(node) }
         }
         self.tail = p;
@@ -130,7 +130,7 @@ impl<T> LinkedList<T> {
             }
             to_remove.prev = ptr::null_mut(); // need this?
         }
-        temp.map(|node| (*node).data)
+        temp.map(|node| node.data)
     }
 
     pub fn remove_at(&mut self, i: usize) -> Option<T> {
@@ -241,8 +241,8 @@ where
             } else {
                 write!(f, " -> ")?;
             }
-            write!(f, "{}", (*p).data)?;
-            head = &(*p).next;
+            write!(f, "{}", p.data)?;
+            head = &p.next;
         }
         write!(f, ")")
     }
