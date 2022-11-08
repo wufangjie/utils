@@ -235,6 +235,7 @@ impl<T: Ord> Avl<T> {
         }
     }
 
+    /// i8: {0, 1} means changed 0 depth or increased 1 depth
     fn insert_rec(node: &mut Option<Box<AvlNode<T>>>, item: T) -> (i8, bool) {
         if node.is_none() {
             let mut leaf = Some(Box::new(AvlNode::new(item)));
@@ -259,7 +260,7 @@ impl<T: Ord> Avl<T> {
 
     /// use recursive to keep original &mut node, this can void using unsafe code
     /// but it seems can not convert to stack based code
-    /// i8: {0, -1} means not change depth or decreased 1 depth
+    /// i8: {0, -1} means changed 0 depth or decreased 1 depth
     fn remove_by_rec(
         node: &mut Option<Box<AvlNode<T>>>,
         cmp: impl Fn(&T) -> Ordering,
