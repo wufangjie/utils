@@ -1,5 +1,18 @@
+//! red black tree
+//!
+//! version 0.1.1
+//! https://github.com/wufangjie/utils/blob/main/src/rbt.rs
+//!
+//! we can add an additional field to RbtNode, to make a treemap,
+//! but the best choice seems to use std::collections::BTreeMap,
+//! which is more cache efficiency (modern computer architecture),
+//! alse see https://www.zhihu.com/question/516912481
+//!
+//! I did not add iter_dfs, it is totally the same as avl's
+
 use std::cmp::Ordering;
 use std::fmt;
+use std::mem;
 
 #[derive(Debug)]
 pub struct Rbt<T: Ord> {
@@ -22,10 +35,6 @@ impl<T: Ord> Rbt<T> {
 impl<T: Ord> Rbt<T> {
     pub fn search(&self, item: &T) -> bool {
         self.search_by(|x| item.cmp(x)).is_some()
-        // match self.search_by(|x| item.cmp(x)) {
-        //     Some(_) => true,
-        //     None => false,
-        // }
     }
 
     pub fn search_by(&self, cmp: impl Fn(&T) -> Ordering) -> Option<&T> {
@@ -80,7 +89,7 @@ impl<T: Ord> Rbt<T> {
                     } else {
                         // this right must a leaf node with red color
                         let mut right = node.as_mut().unwrap().right.take();
-                        std::mem::swap(node, &mut right);
+                        mem::swap(node, &mut right);
                         // now right is the removed node
                         match right.as_ref().unwrap().color {
                             Color::Black => (-1, Some(right.unwrap().data)),
@@ -89,7 +98,7 @@ impl<T: Ord> Rbt<T> {
                     }
                 } else {
                     let (mut delta, mut removed) = Self::remove_right_most_rec(&mut inner.left);
-                    std::mem::swap(&mut inner.data, &mut removed.data);
+                    mem::swap(&mut inner.data, &mut removed.data);
                     delta = Self::backtrace_remove(node, -1, delta);
                     (delta, Some(removed.data))
                 }
@@ -114,7 +123,7 @@ impl<T: Ord> Rbt<T> {
             (delta, ret)
         } else {
             let mut left = node.as_mut().unwrap().left.take();
-            std::mem::swap(node, &mut left);
+            mem::swap(node, &mut left);
             match left.as_ref().unwrap().color {
                 Color::Black => (-1, left.unwrap()),
                 Color::Red => (0, left.unwrap()),
@@ -122,70 +131,51 @@ impl<T: Ord> Rbt<T> {
         }
     }
 
-    /// other branch at least have a black node
+    /// NOTE: other branch at least have a black node
+    /// which means left(-1) or right(1) child being removed a node
+    /// count means removed how many black node {0, -1}
+    /// we only need to consider the non-remove branch's red node (3 levels)
+    /// level1 means one of its child being removed a black node
+    /// case1: level2 is red, rotate once to make it to other cases
+    /// case2: level3 the outside node is red, rotate once
+    /// case3: level3 the inside node is red, rotate twice
+    /// case4: level1 is red, change it to black, then level2 to red
+    /// case5: all of them are black, change level2 to red, then backtrace
     fn backtrace_remove(node: &mut Option<Box<RbtNode<T>>>, which: i8, count: i8) -> i8 {
         if count == 0 {
             0
-        } else if which == -1 {
-            let c0 = Self::get_color(node, 0);
-            if let Color::Red = Self::get_color(node, 1) {
-                // case4
-                Self::rotate_left(node);
-                Self::set_color(node, 0, Color::Black);
-                Self::set_color(node, -1, Color::Red);
-                Self::backtrace_remove(node, -1, -1) // recursive
-            } else if let Color::Red = Self::get_color(node, 2) {
-                // case5
-                Self::rotate_left(node);
-                Self::set_color(node, 0, c0);
-                Self::set_color(node, -1, Color::Black);
-                Self::set_color(node, 1, Color::Black);
-                0
-            } else if let Color::Red = Self::get_color(&node.as_ref().unwrap().right, -1) {
-                // case6
-                Self::rotate_right(&mut node.as_mut().unwrap().right);
-                Self::rotate_left(node);
-                Self::set_color(node, 0, c0);
-                Self::set_color(node, -1, Color::Black);
-                Self::set_color(node, 1, Color::Black);
-                0
-            } else if let Color::Red = c0 {
-                // case2
-                Self::set_color(node, 0, Color::Black);
-                Self::set_color(node, 1, Color::Red);
-                0
-            } else {
-                // case3: c0 is black
-                Self::set_color(node, 1, Color::Red);
-                -1
-            }
         } else {
             let c0 = Self::get_color(node, 0);
-            if let Color::Red = Self::get_color(node, -1) {
-                Self::rotate_right(node);
+            if let Color::Red = Self::get_color(node, -which) {
+                // case1
+                Self::rotate(node, which);
                 Self::set_color(node, 0, Color::Black);
-                Self::set_color(node, -1, Color::Red);
-                Self::backtrace_remove(node, 1, -1)
-            } else if let Color::Red = Self::get_color(node, -2) {
-                Self::rotate_right(node);
+                Self::set_color(node, which, Color::Red);
+                Self::backtrace_remove(node, which, -1) // recursive
+            } else if let Color::Red = Self::get_color(node, -2 * which) {
+                // case2
+                Self::rotate(node, which);
                 Self::set_color(node, 0, c0);
                 Self::set_color(node, -1, Color::Black);
                 Self::set_color(node, 1, Color::Black);
                 0
-            } else if let Color::Red = Self::get_color(&node.as_ref().unwrap().left, 1) {
-                Self::rotate_left(&mut node.as_mut().unwrap().left);
-                Self::rotate_right(node);
+            } else if let Color::Red = Self::get_color(Self::get_child(node, -which), which) {
+                // case3
+                Self::rotate(Self::get_child(node, -which), -which);
+                Self::rotate(node, which);
                 Self::set_color(node, 0, c0);
                 Self::set_color(node, -1, Color::Black);
                 Self::set_color(node, 1, Color::Black);
                 0
             } else if let Color::Red = c0 {
+                // case4
                 Self::set_color(node, 0, Color::Black);
-                Self::set_color(node, -1, Color::Red);
+                Self::set_color(node, -which, Color::Red);
                 0
             } else {
-                Self::set_color(node, -1, Color::Red);
-                -1
+                // case5
+                Self::set_color(node, -which, Color::Red);
+                -1 // backtrace
             }
         }
     }
@@ -195,7 +185,7 @@ impl<T: Ord> Rbt<T> {
     fn insert_rec(node: &mut Option<Box<RbtNode<T>>>, item: T) -> (i8, bool) {
         if node.is_none() {
             let mut leaf = Some(Box::new(RbtNode::new(item)));
-            std::mem::swap(node, &mut leaf);
+            mem::swap(node, &mut leaf);
             return (1, true);
         }
         match item.cmp(&node.as_ref().unwrap().data) {
@@ -214,44 +204,33 @@ impl<T: Ord> Rbt<T> {
         }
     }
 
-    /// this backtrace only process two red-red
+    /// this backtrace only process red-red case (child and its parent are both red)
+    /// NOTE: current level1 is always black
+    /// case1: other branch level2 is red, change level2 black, level1 red, then backtrace
+    /// case2: inserting branch's level3 outside node are red, rotate once
+    /// case3: inserting branch's level3 inside node are red, rotate twice
+    /// why put case1 first, as this case, we can not rotate (will add it a red parent)
     fn backtrace_insert(node: &mut Option<Box<RbtNode<T>>>, which: i8, count: i8) -> i8 {
         match count {
             0 => 0,
             2 => {
                 if let Color::Red = Self::get_color(node, -which) {
-                    // case2
+                    // case1
+                    Self::set_color(node, 0, Color::Red);
                     Self::set_color(node, -1, Color::Black);
                     Self::set_color(node, 1, Color::Black);
-                    Self::set_color(node, 0, Color::Red);
                     1
-                } else if which == 1 {
-                    if let Color::Red = Self::get_color(node, 2) {
-                        // case3
-                        Self::rotate_left(node);
-                        Self::set_color(node, 0, Color::Black);
-                        Self::set_color(node, -1, Color::Red);
-                    } else {
-                        // case4
-                        Self::rotate_right(&mut node.as_mut().unwrap().right);
-                        Self::rotate_left(node);
-                        Self::set_color(node, 0, Color::Black);
-                        Self::set_color(node, -1, Color::Red);
-                    }
-                    0
                 } else {
-                    if let Color::Red = Self::get_color(node, -2) {
-                        // case3
-                        Self::rotate_right(node);
-                        Self::set_color(node, 0, Color::Black);
-                        Self::set_color(node, 1, Color::Red);
+                    if let Color::Red = Self::get_color(node, 2 * which) {
+                        // case2
+                        Self::rotate(node, -which);
                     } else {
-                        // case4
-                        Self::rotate_left(&mut node.as_mut().unwrap().left);
-                        Self::rotate_right(node);
-                        Self::set_color(node, 0, Color::Black);
-                        Self::set_color(node, 1, Color::Red);
+                        // case3
+                        Self::rotate(Self::get_child(node, which), which);
+                        Self::rotate(node, -which);
                     }
+                    Self::set_color(node, 0, Color::Black);
+                    Self::set_color(node, -which, Color::Red);
                     0
                 }
             }
@@ -267,9 +246,9 @@ impl<T: Ord> Rbt<T> {
     fn rotate_right(top: &mut Option<Box<RbtNode<T>>>) {
         let mut left = top.as_mut().unwrap().left.take();
         let lr = left.as_mut().unwrap().right.take();
-        std::mem::replace(&mut top.as_mut().unwrap().left, lr);
-        std::mem::swap(&mut left, top);
-        std::mem::replace(&mut top.as_mut().unwrap().right, left);
+        mem::replace(&mut top.as_mut().unwrap().left, lr);
+        mem::swap(&mut left, top);
+        mem::replace(&mut top.as_mut().unwrap().right, left);
     }
 
     /// rotate left without updating diff
@@ -277,9 +256,29 @@ impl<T: Ord> Rbt<T> {
     fn rotate_left(top: &mut Option<Box<RbtNode<T>>>) {
         let mut right = top.as_mut().unwrap().right.take();
         let rl = right.as_mut().unwrap().left.take();
-        std::mem::replace(&mut top.as_mut().unwrap().right, rl);
-        std::mem::swap(&mut right, top);
-        std::mem::replace(&mut top.as_mut().unwrap().left, right);
+        mem::replace(&mut top.as_mut().unwrap().right, rl);
+        mem::swap(&mut right, top);
+        mem::replace(&mut top.as_mut().unwrap().left, right);
+    }
+
+    /// rotate left or right, using which, used to simplify code
+    /// which: -1 means rotate_left, 1 means rotate_right
+    #[inline]
+    fn rotate(top: &mut Option<Box<RbtNode<T>>>, which: i8) {
+        match which {
+            -1 => Self::rotate_left(top),
+            1 => Self::rotate_right(top),
+            _ => unreachable!(),
+        }
+    }
+
+    /// which: -1 means left child, 1 means right child
+    fn get_child(top: &mut Option<Box<RbtNode<T>>>, which: i8) -> &mut Option<Box<RbtNode<T>>> {
+        match which {
+            -1 => &mut top.as_mut().unwrap().left,
+            1 => &mut top.as_mut().unwrap().right,
+            _ => unreachable!(),
+        }
     }
 
     /// which's possible values: {-2, -1, 0, 1, 2}
