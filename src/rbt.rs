@@ -87,14 +87,11 @@ impl<T: Ord> Rbt<T> {
                             Color::Red => (0, Some(node.take().unwrap().data)),
                         }
                     } else {
-                        // this right must a leaf node with red color
+                        // this right must a leaf node with red color, black-red
                         let mut right = node.as_mut().unwrap().right.take();
                         mem::swap(node, &mut right);
-                        // now right is the removed node
-                        match right.as_ref().unwrap().color {
-                            Color::Black => (-1, Some(right.unwrap().data)),
-                            Color::Red => (0, Some(right.unwrap().data)),
-                        }
+                        Self::set_color(node, 0, Color::Black);
+                        (0, Some(right.unwrap().data))
                     }
                 } else {
                     let (mut delta, mut removed) = Self::remove_right_most_rec(&mut inner.left);
@@ -125,7 +122,14 @@ impl<T: Ord> Rbt<T> {
             let mut left = node.as_mut().unwrap().left.take();
             mem::swap(node, &mut left);
             match left.as_ref().unwrap().color {
-                Color::Black => (-1, left.unwrap()),
+                Color::Black => {
+                    if node.is_some() {
+                        Self::set_color(node, 0, Color::Black);
+                        (0, left.unwrap())
+                    } else {
+                        (-1, left.unwrap())
+                    }
+                }
                 Color::Red => (0, left.unwrap()),
             }
         }
