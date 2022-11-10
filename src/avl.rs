@@ -104,23 +104,21 @@ impl<T: Ord> Avl<T> {
     }
 
     /// rotate right without updating diff
-    #[allow(unused_must_use)]
     fn rotate_right(top: &mut Option<Box<AvlNode<T>>>) {
         let mut left = top.as_mut().unwrap().left.take();
         let lr = left.as_mut().unwrap().right.take();
-        mem::replace(&mut top.as_mut().unwrap().left, lr);
+        top.as_mut().unwrap().left = lr;
         mem::swap(&mut left, top);
-        mem::replace(&mut top.as_mut().unwrap().right, left);
+        top.as_mut().unwrap().right = left;
     }
 
     /// rotate left without updating diff
-    #[allow(unused_must_use)]
     fn rotate_left(top: &mut Option<Box<AvlNode<T>>>) {
         let mut right = top.as_mut().unwrap().right.take();
         let rl = right.as_mut().unwrap().left.take();
-        mem::replace(&mut top.as_mut().unwrap().right, rl);
+        top.as_mut().unwrap().right = rl;
         mem::swap(&mut right, top);
-        mem::replace(&mut top.as_mut().unwrap().left, right);
+        top.as_mut().unwrap().left = right;
     }
 
     /// diff only can be 1 or -1, actually the current real diff is 2 or -2

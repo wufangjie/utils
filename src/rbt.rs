@@ -246,23 +246,21 @@ impl<T: Ord> Rbt<T> {
     }
 
     /// rotate right without updating diff
-    #[allow(unused_must_use)]
     fn rotate_right(top: &mut Option<Box<RbtNode<T>>>) {
         let mut left = top.as_mut().unwrap().left.take();
         let lr = left.as_mut().unwrap().right.take();
-        mem::replace(&mut top.as_mut().unwrap().left, lr);
+        top.as_mut().unwrap().left = lr;
         mem::swap(&mut left, top);
-        mem::replace(&mut top.as_mut().unwrap().right, left);
+        top.as_mut().unwrap().right = left;
     }
 
     /// rotate left without updating diff
-    #[allow(unused_must_use)]
     fn rotate_left(top: &mut Option<Box<RbtNode<T>>>) {
         let mut right = top.as_mut().unwrap().right.take();
         let rl = right.as_mut().unwrap().left.take();
-        mem::replace(&mut top.as_mut().unwrap().right, rl);
+        top.as_mut().unwrap().right = rl;
         mem::swap(&mut right, top);
-        mem::replace(&mut top.as_mut().unwrap().left, right);
+        top.as_mut().unwrap().left = right;
     }
 
     /// rotate left or right, using which, used to simplify code
@@ -489,5 +487,11 @@ mod tests {
         }
         t8.assert_valid_bst();
         //t8.pprint();
+
+        let a = &"hello world".to_string();
+        let b = std::array::from_ref(&a);
+        crate::dbgt!(&b);
+        let c = &[a.clone()];
+        crate::dbgt!(&c);
     }
 }
