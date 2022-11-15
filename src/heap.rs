@@ -1,6 +1,6 @@
 //! A Min-BinaryHeap implementation.
 //!
-//! version 0.1.6
+//! version 0.1.7
 //! https://github.com/wufangjie/utils/blob/main/src/heap.rs
 //!
 //! NOTE: std::collections::BinaryHeap is a max heap,
@@ -21,8 +21,14 @@ impl<T> Heap<T>
 where
     T: PartialOrd,
 {
-    pub fn new() -> Heap<T> {
-        Heap { data: vec![] }
+    pub fn new() -> Self {
+        Self { data: vec![] }
+    }
+
+    pub fn with_capacity(capacity: usize) -> Heap<T> {
+        Self {
+            data: Vec::with_capacity(capacity),
+        }
     }
 
     #[inline]
@@ -181,9 +187,11 @@ mod tests {
         let heap = Heap::from(vec![1]);
         is_a_min_heap(&heap);
 
-        let mut heap = Heap::new();
+        //let mut heap = Heap::new();
+        let mut heap = Heap::with_capacity(12);
         for i in &[11, 10, 4, 9, 7, 3, 1, 8, 6, 0, 5, 2] {
             heap.push(i);
+            //println!("{:p}", &heap.data[0] as *const _);
         }
         is_a_min_heap(&heap);
     }
