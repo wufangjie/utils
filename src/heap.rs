@@ -134,6 +134,10 @@ where
     //         }
     //     }
     // }
+
+    pub fn into_inner(self) -> Vec<T> {
+	self.data
+    }
 }
 
 impl<T: PartialOrd> From<Vec<T>> for Heap<T> {
