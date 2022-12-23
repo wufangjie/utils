@@ -4,6 +4,7 @@
 + [heap] another implement (std::collections::BinaryHeap)
 + [linkedlist] another implement (std::collections::LinkedList)
 + [avl tree]
++ [red black tree]
 + [trie] TODO: hashmap version?
 + [disjoint set]
 + [segment tree]
