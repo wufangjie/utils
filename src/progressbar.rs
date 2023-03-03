@@ -129,7 +129,7 @@ mod test_pb {
     #[test]
     fn test_pb2() {
         // import IterPro struct
-        for _ in IterPro::new((0..101).into_iter().take(60)) {
+        for _ in IterPro::new((0..101).take(60)) {
             thread::sleep(Duration::from_millis(50));
         }
     }
@@ -137,7 +137,7 @@ mod test_pb {
     #[test]
     fn test_pb3() {
         // import Progress trait
-        for _ in (0..101).into_iter().skip(40).progress() {
+        for _ in (0..101).skip(40).progress() {
             thread::sleep(Duration::from_millis(50));
         }
     }

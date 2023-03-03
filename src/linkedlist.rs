@@ -317,7 +317,7 @@ fn test_linkedlist() {
     ll.remove_item(33);
     assert_eq!(7, ll.len());
 
-    assert_eq!("(6 -> 9 -> 12 -> 142 -> 2 -> 4 -> 42)", format!("{}", ll));
+    assert_eq!("(6 -> 9 -> 12 -> 142 -> 2 -> 4 -> 42)", format!("{ll}"));
     assert!(ll.contains(&9));
     assert!(!ll.contains(&5));
     // assert!(ll.contains(&142));

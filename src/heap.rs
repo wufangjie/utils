@@ -143,7 +143,7 @@ where
 impl<T: PartialOrd> From<Vec<T>> for Heap<T> {
     fn from(data: Vec<T>) -> Self {
         let mut res = Self { data };
-        for i in (0..res.len() >> 1).into_iter().rev() {
+        for i in (0..res.len() >> 1).rev() {
             res.heapify_downward(i);
         }
         res

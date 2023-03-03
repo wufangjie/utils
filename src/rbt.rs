@@ -444,10 +444,7 @@ mod tests {
             let count_left = Self::is_rbt_rec(&inner.left, count_black);
             let count_right = Self::is_rbt_rec(&inner.left, count_black);
             if count_left != count_right {
-                println!(
-                    "Error: different black count: {}, {}",
-                    count_left, count_right
-                );
+                println!("Error: different black count: {count_left}, {count_right}");
                 -1
             } else {
                 count_left

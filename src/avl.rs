@@ -484,7 +484,7 @@ mod tests {
                 } else {
                     write!(f, ", ")?;
                 }
-                write!(f, "{}", to_print)?;
+                write!(f, "{to_print}")?;
             }
             write!(f, ")")
         }
@@ -526,7 +526,7 @@ mod tests {
         for i in [20, 4, 26, 3, 9, 15] {
             t1.insert(i);
         }
-        assert_eq!(format!("{}", t1), "(9, 4, 20, 3, 15, 26)");
+        assert_eq!(format!("{t1}"), "(9, 4, 20, 3, 15, 26)");
         // dbgt!(&t1);
         // println!("{}", t1);
 
@@ -534,7 +534,7 @@ mod tests {
         for i in [20, 4, 26, 3, 9, 21, 30, 2, 7, 11, 15] {
             t2.insert(i);
         }
-        assert_eq!(format!("{}", t2), "(9, 4, 20, 3, 7, 11, 26, 2, 15, 21, 30)");
+        assert_eq!(format!("{t2}"), "(9, 4, 20, 3, 7, 11, 26, 2, 15, 21, 30)");
         // dbgt!(&t2);
         // println!("{}", t2);
 
@@ -542,7 +542,7 @@ mod tests {
         for i in [20, 4, 26, 3, 9, 8] {
             t3.insert(i);
         }
-        assert_eq!(format!("{}", t3), "(9, 4, 20, 3, 8, 26)");
+        assert_eq!(format!("{t3}"), "(9, 4, 20, 3, 8, 26)");
         // dbgt!(&t3);
         // println!("{}", t3);
 
@@ -550,7 +550,7 @@ mod tests {
         for i in [20, 4, 26, 3, 9, 21, 30, 2, 7, 11, 8] {
             t4.insert(i);
         }
-        assert_eq!(format!("{}", t4), "(9, 4, 20, 3, 7, 11, 26, 2, 8, 21, 30)");
+        assert_eq!(format!("{t4}"), "(9, 4, 20, 3, 7, 11, 26, 2, 8, 21, 30)");
         // dbgt!(&t4);
         // println!("{}", t4);
 
@@ -568,7 +568,7 @@ mod tests {
             t5.insert(i);
         }
         assert_eq!(Some(1), t5.remove_by(|x| 1.cmp(x)));
-        assert_eq!(format!("{}", t5), "(4, 2, 5, 3)");
+        assert_eq!(format!("{t5}"), "(4, 2, 5, 3)");
         // dbgt!(&t5);
         // println!("{}", t5);
 
@@ -578,7 +578,7 @@ mod tests {
         }
         t6.remove(&1);
         assert_eq!(
-            format!("{}", t6),
+            format!("{t6}"),
             "(6, 4, 9, 2, 5, 8, 66, 3, 7, 65, 67, 68)"
         );
         // dbgt!(&t6);
@@ -589,7 +589,7 @@ mod tests {
             t7.insert(i);
         }
         t7.remove(&1);
-        assert_eq!(format!("{}", t7), "(8, 5, 65, 3, 7, 9, 66, 2, 4, 6, 67)");
+        assert_eq!(format!("{t7}"), "(8, 5, 65, 3, 7, 9, 66, 2, 4, 6, 67)");
         // dbgt!(&t7);
         // println!("{}", t7);
 

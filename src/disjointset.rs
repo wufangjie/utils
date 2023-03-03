@@ -6,7 +6,7 @@ pub struct DisjointSet {
 
 impl DisjointSet {
     pub fn new(n: usize) -> Self {
-        let parent = (0..n).into_iter().collect();
+        let parent = (0..n).collect();
         let rank = vec![0; n];
         Self { parent, rank }
     }
