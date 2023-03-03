@@ -12,7 +12,7 @@ where
         let mut lo = 0;
         let mut hi = self.len(); // (len() -1, <=, mid -1) will overflow
         while lo < hi {
-            let mid = (lo + hi) >> 1;
+            let mid = lo + ((hi - lo) >> 1); // NOTE: lo + hi may overflow
             if self[mid] == val {
                 return mid;
             } else if self[mid] < val {
@@ -28,7 +28,7 @@ where
         let mut lo = 0;
         let mut hi = self.len();
         while lo < hi {
-            let mid = (lo + hi) >> 1;
+            let mid = lo + ((hi - lo) >> 1);
             if self[mid] < val {
                 lo = mid + 1;
             } else {
@@ -42,7 +42,7 @@ where
         let mut lo = 0;
         let mut hi = self.len();
         while lo < hi {
-            let mid = (lo + hi) >> 1;
+            let mid = lo + ((hi - lo) >> 1);
             if self[mid] <= val {
                 lo = mid + 1;
             } else {
